@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Creative AI Text to Speech</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', sans-serif;
+      background: linear-gradient(to right, #28356f, #70469b);
+      color: #fff;
+      text-align: center;
+      padding: 40px 20px;
+      min-height: 100vh;
+    }
+    h1 {
+      font-size: 2.8em;
+      margin-bottom: 20px;
+    }
+    input, textarea, select, button {
+      padding: 12px;
+      font-size: 1em;
+      border-radius: 10px;
+      border: none;
+      margin: 10px;
+      max-width: 90%;
+      width: 400px;
+    }
+    textarea {
+      height: 120px;
+      resize: vertical;
+    }
+    button {
+      background-color: #00c9a7;
+      color: #fff;
+      cursor: pointer;
+      transition: 0.3s;
+    }
+    button:hover {
+      background-color: #00a68d;
+    }
+    #greeting {
+      font-size: 1.2em;
+      margin: 20px 0;
+      color: #ffeb3b;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>AI Text to Speech</h1>
+
+  
+  <textarea id="text" placeholder="Type your message text..."></textarea>
+  <br />
+  <select id="voiceSelect"></select>
+  <br />
+  <button onclick="startSpeech()"> Speak</button>
+  <button onclick="downloadSpeech()">Download</button>
+
+  <div id="greeting"></div>
+
+  <script>
+    let voices = [];
+
+    function loadVoices() {
+      voices = speechSynthesis.getVoices();
+      const voiceSelect = document.getElementById("voiceSelect");
+      voiceSelect.innerHTML = "";
+      voices.forEach((voice, i) => {
+        const option = document.createElement("option");
+        option.value = i;
+        option.textContent = `${voice.name} (${voice.lang})`;
+        voiceSelect.appendChild(option);
+      });
+    }
+
+    speechSynthesis.onvoiceschanged = loadVoices;
+
+    function startSpeech() {
+      const name = document.getElementById("username").value.trim();
+      const text = document.getElementById("text").value.trim();
+
+      if (!name) {
+        alert("Please enter your name first.");
+        return;
+      }
+      if (!text) {
+        alert("Please type something to speak.");
+        return;
+      }
+
+      const greeting = document.getElementById("greeting");
+      greeting.textContent = `Hello ${name}, enjoy your voice!`;
+
+      const voiceIndex = document.getElementById("voiceSelect").value;
+      const utterance = new SpeechSynthesisUtterance(text);
+      utterance.voice = voices[voiceIndex];
+      speechSynthesis.speak(utterance);
+
+      // Simulate message to you
+      console.log(`Message received from ${name}: "${text}"`);
+      // Replace this with real backend call/email service
+    }
+
+    function downloadSpeech() {
+      const name = document.getElementById("username").value.trim();
+      const text = document.getElementById("text").value.trim();
+      if (!text || !name) {
+        alert("Please enter your name and message first.");
+        return;
+      }
+
+      const filename = `speech_from_${name.replace(/\s+/g, "_")}.txt`;
+      const blob = new Blob([text], { type: "text/plain" });
+      const url = URL.createObjectURL(blob);
+
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = filename;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    }
+  </script>
+
+</body>
+</html>
